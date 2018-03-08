@@ -3,4 +3,4 @@
 **/notebooks/.ipynb_checkpoints/
 *.swp
 **/scripts/__pycache__/
-**/.ipynb_checkpoints
+**/.ipynb_checkpoints/
