@@ -1,4 +1,12 @@
 import keras
+import os
+import utils
+import json
+import random
+import time
+import pandas as pd
+import numpy as np
+from PIL import Image
 
 class Tub(object):
     """
@@ -312,3 +320,24 @@ class Tub(object):
 
         return train_gen, val_gen
 
+class TubGroup(Tub):
+    def __init__(self, tub_paths_arg):
+        tub_paths = utils.expand_path_arg(tub_paths_arg)
+        print('TubGroup:tubpaths:', tub_paths)
+        tubs = [Tub(path) for path in tub_paths]
+        self.input_types = {}
+
+        record_count = 0
+        for t in tubs:
+            t.update_df()
+            record_count += len(t.df)
+            self.input_types.update(dict(zip(t.inputs, t.types)))
+
+        print('joining the tubs {} records together. This could take {} minutes.'.format(record_count,
+                                                                                         int(record_count / 300000)))
+
+        self.meta = {'inputs': list(self.input_types.keys()),
+                     'types': list(self.input_types.values())}
+
+
+        self.df = pd.concat([t.df for t in tubs], axis=0, join='inner')
