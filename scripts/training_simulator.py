@@ -149,6 +149,8 @@ def generator(samples, batch_size=32, perc_to_augment=0.5):
             y_train = np.array(controls)
             yield X_train, y_train
 
+            
+""" The two functions below work exclusively for the simulator """
 def make_generators(inputs, limit=None, batch_size=32, aug_perc=0.0):
     '''
     load the job spec from the csv and create some generator for training

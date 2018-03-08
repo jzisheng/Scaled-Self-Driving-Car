@@ -4,3 +4,5 @@
 *.swp
 **/scripts/__pycache__/
 **/.ipynb_checkpoints/
+debug.log
+debug.log
