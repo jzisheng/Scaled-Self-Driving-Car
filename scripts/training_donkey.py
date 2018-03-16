@@ -1,6 +1,7 @@
 import numpy,keras,sys,PIL,models, os
 import config as cfg
 import utils
+import sys
 from PIL import Image
 from os import walk
 from datastore import TubGroup
@@ -24,7 +25,7 @@ class KerasPilot():
         """
         #checkpoint to save model after each epoch
         save_best = keras.callbacks.ModelCheckpoint(saved_model_path, 
-                                                    monitor='val_loss', 
+                                                    monitor=['val_loss','accuracy'],
                                                     verbose=verbose, 
                                                     save_best_only=True, 
                                                     mode='min')
@@ -48,8 +49,7 @@ class KerasPilot():
                         verbose=1, 
                         validation_data=val_gen,
                         callbacks=callbacks_list, 
-                        validation_steps=steps*(1.0 - train_split),
-                        metrics=['accuracy'])
+                        validation_steps=steps*(0.9 - train_split))
         return hist
 
 class KerasCategorical(KerasPilot):
@@ -103,3 +103,5 @@ def train(tub_names, model_name):
              saved_model_path=model_path,
              steps=steps_per_epoch,
              train_split=cfg.TRAIN_TEST_SPLIT)
+    
+    

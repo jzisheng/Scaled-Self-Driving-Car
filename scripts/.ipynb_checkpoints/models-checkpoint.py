@@ -93,6 +93,42 @@ def get_cnn1_model():
     
     return model
 
+def get_cnn1_model():
+    model = keras.models.Sequential()
+    #model.add(keras.layers.Dense(100, input_dim=input_size, activation='tanh'))
+    model.add(keras.layers.Cropping2D(cropping=((20,0), (0,0)), input_shape=(120, 160, 3)))
+    model.add(keras.layers.Conv2D( 32, (5, 5), strides=(2,2), padding='same'))
+    model.add(keras.layers.ELU())
+ 
+    model.add(keras.layers.Conv2D( 32, (3, 3), strides=(2,2), padding='same'))
+    model.add(keras.layers.ELU())
+    
+    model.add(keras.layers.Conv2D( 16,( 3, 3), strides=(1,1), padding='same'))
+    model.add(keras.layers.ELU())
+    
+    model.add(keras.layers.Dropout(0.5))
+    
+    model.add(keras.layers.Flatten())
+    
+    model.add(keras.layers.Dense(2048))
+    model.add(keras.layers.ELU())
+    
+    model.add(keras.layers.Dense(1024))
+    model.add(keras.layers.Dropout(0.4))
+    model.add(keras.layers.ELU())
+    
+    model.add(keras.layers.Dense(526))
+    model.add(keras.layers.Dropout(0.2))
+    model.add(keras.layers.ELU())
+    
+    model.add(keras.layers.Dense(128))
+    model.add(keras.layers.Dropout(0.2))
+    model.add(keras.layers.ELU())
+    
+    model.add(keras.layers.Dense(15, activation='relu'))
+    
+    return model
+
 def get_nvidia_model(num_outputs):
     '''
     this model is inspired by the NVIDIA paper
@@ -102,7 +138,7 @@ def get_nvidia_model(num_outputs):
     
     model = Sequential()
 
-    model.add(Cropping2D(cropping=((20,0), (0,0)), input_shape=(120, 160, 3)))
+    model.add(Cropping2D(cropping=((30,0), (0,0)), input_shape=(120, 160, 3)))
 
     model.add(Lambda(lambda x: x/127.5 - 1.))
     model.add(Conv2D(24, (5, 5), strides=(2, 2), padding="same"))

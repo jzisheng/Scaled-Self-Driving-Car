@@ -3,10 +3,13 @@ import numpy
 import keras
 import sys
 import PIL
+import utils
 from PIL import Image
 
 class DataLoader(object):
     max_train = 10
+    index_start = 0
+    
     filepath = ""
     def parse_img_name(self, fstr):
         """ 
@@ -14,7 +17,9 @@ class DataLoader(object):
         """
         data = fstr.split("_")
         if(len(data)>2):
-            return(data[3])
+            #print(float(data[3])/25.0)
+            result =float(data[3])/30.0
+            return result
         else:
             return -1
         
@@ -30,16 +35,21 @@ class DataLoader(object):
         files = self.get_image_paths(path)
         # Prepare training data
         count = 0
+        index_count = 0
         for fname in files:
-            parsed = self.parse_img_name(fname)
-            if not(parsed == -1):                         # Make sure the file is valid
-                steerings.append( self.parse_img_name(fname) ) # Append steering
-                img = self.load_image(path+fname)
-                # img = self.normalize(self.load_image(path+fname))   # Load the image
-                imgs.append(img)                          # Append image to images array
-                count+=1              
-                if(count > self.max_train):
-                    break
+            if index_count < self.index_start:
+                index_count +=1 # Starts loading file from this index point
+            # Starting from file index index_start
+            else:
+                parsed = self.parse_img_name(fname)
+                if not(parsed == -1):        # Make sure the file is valid
+                    steerings.append( utils.linear_bin(parsed) ) # Append steering
+                    img = self.load_image(path+fname)
+                    # img = self.normalize(self.load_image(path+fname))   # Load the image
+                    imgs.append(img)                          # Append image to images array
+                    count+=1              
+                    if(count > self.max_train):
+                        break
         return imgs, steerings
 
     def get_image_paths(self, path):
@@ -70,17 +80,18 @@ class DataLoader(object):
                 arr[...,i] *= (255.0/(maxval-minval))
         return arr
     
-    def load(self):
+    def load(self):       
         imgs, steerings = self.prepare_files(self.filepath)
         return numpy.array(imgs), numpy.array(steerings)
     
     def test(self,x):
         print(x)
     
-    def __init__(self,filepath,max_train):
+    def __init__(self,filepath,max_train=10000,index_start = 0):
         self.data = []
         self.filepath = filepath
         self.max_train = max_train
+        self.index_start=index_start
         
         
 

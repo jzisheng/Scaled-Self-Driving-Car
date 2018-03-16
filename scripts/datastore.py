@@ -4,8 +4,10 @@ import utils
 import json
 import random
 import time
+import sys
 import pandas as pd
 import numpy as np
+import config
 from PIL import Image
 
 class Tub(object):
@@ -19,6 +21,7 @@ class Tub(object):
     >>> types = ['float', 'image']
     >>> t=Tub(path=path, inputs=inputs, types=types)
     """
+    path = ''
 
     def __init__(self, path, inputs=None, types=None):
 
@@ -143,7 +146,7 @@ class Tub(object):
         Iterate over all records and make sure we can load them.
         Optionally remove records that cause a problem.
         '''
-        print('Checking tub:%s.' % self.path)
+        #print('Checking tub:%s.' % self.path)
         print('Found: %d records.' % self.get_num_records())
         problems = False
         for ix in self.get_index(shuffled=False):
@@ -207,6 +210,7 @@ class Tub(object):
         path = self.get_json_record_path(ix)
         try:
             with open(path, 'r') as fp:
+                # print(fp)
                 json_data = json.load(fp)
         except UnicodeDecodeError:
             raise Exception('bad record: %d. You may want to run `python manage.py check --fix`' % ix)
@@ -236,6 +240,9 @@ class Tub(object):
             #load objects that were saved as separate files
             if typ == 'image_array':
                 img = Image.open((val))
+                '''if len(img.shape) !=3:
+                    print('weird error')
+                    a=1/0'''
                 val = np.array(img)
 
             data[key] = val
@@ -300,7 +307,7 @@ class Tub(object):
 
         batch_gen = self.get_batch_gen(X_keys + Y_keys,
                                        batch_size=batch_size, record_transform=record_transform, df=df)
-
+        
         while True:
             batch = next(batch_gen)
             X = [batch[k] for k in X_keys]
@@ -311,7 +318,8 @@ class Tub(object):
     def get_train_val_gen(self, X_keys, Y_keys, batch_size=128, record_transform=None, train_frac=.8):
         train_df = train=self.df.sample(frac=train_frac,random_state=200)
         val_df = self.df.drop(train_df.index)
-
+        print(Y_keys)
+        
         train_gen = self.get_train_gen(X_keys=X_keys, Y_keys=Y_keys, batch_size=batch_size,
                                        record_transform=record_transform, df=train_df)
 
@@ -321,14 +329,16 @@ class Tub(object):
         return train_gen, val_gen
 
 class TubGroup(Tub):
+    tub_paths = ""
+    tubs = []
     def __init__(self, tub_paths_arg):
-        tub_paths = utils.expand_path_arg(tub_paths_arg)
-        print('TubGroup:tubpaths:', tub_paths)
-        tubs = [Tub(path) for path in tub_paths]
+        self.tub_paths = utils.expand_path_arg(tub_paths_arg)
+        print('TubGroup:tubpaths:', self.tub_paths)
+        self.tubs = [Tub(path) for path in self.tub_paths]
         self.input_types = {}
 
         record_count = 0
-        for t in tubs:
+        for t in self.tubs:
             t.update_df()
             record_count += len(t.df)
             self.input_types.update(dict(zip(t.inputs, t.types)))
@@ -340,4 +350,4 @@ class TubGroup(Tub):
                      'types': list(self.input_types.values())}
 
 
-        self.df = pd.concat([t.df for t in tubs], axis=0, join='inner')
+        self.df = pd.concat([t.df for t in self.tubs], axis=0, join='inner')
