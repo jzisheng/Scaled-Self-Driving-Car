@@ -1,0 +1,14 @@
+env/*
+data/*
+dist/*
+*.pyc
+.ipynb_checkpoints
+*.egg-info/
+.git.bfg-report
+.DS_Store
+lag_log.csv
+.spyproject
+.cache
+site/*
+build
+.idea
