@@ -1,0 +1,67 @@
+Hi Tawn,
+First of all just wanted to say appreciate your youtube videos - espescially seeing the progress in building your scaled self driving car. It's inspired me to take up the challenge as well and in fact, it's currently my senior capstone project in college. 
+
+I'm reaching out to you because I'm trying to implement a LSTM as you did in this video: https://www.youtube.com/watch?v=0wlu3cA1B7g&t=51s 
+
+I sent a message in the #models group but figured maybe I'd ask you directly as well. 
+
+In case you haven't seen that message yet I'm attempting to build the model now but I'm scratching my head on how images would be inputted into the LSTM layer. Would the input vector be four dimensional to include the output from previous timesteps? 
+
+I was imagining it'd be something along the lines of this:
+
+```
+hidden_size = 500
+
+img_in = Input(shape=(120, 160, 3), name='img_in')                   
+x = img_in
+x = LSTM(hidden_size, return_sequences=True)
+x = LSTM(hidden_size, return_sequences=True)
+x = Convolution2D(24, (5,5), strides=(2,2), activation='relu')(x)    
+x = Convolution2D(32, (5,5), strides=(2,2), activation='relu')(x)     
+x = Convolution2D(64, (5,5), strides=(2,2), activation='relu')(x)      
+
+...
+...
+
+#what would the 'inputs' look like for the model?
+model = Model(inputs=[img_in], outputs=[angle_out, throttle_out])
+model.compile(optimizer='adam',
+             loss={'angle_out': 'categorical_crossentropy',
+                   'throttle_out': 'mean_absolute_error'},
+             loss_weights={'angle_out': 0.9, 'throttle_out': .001})
+```
+
+I've already set up a lstm_record_generator which yields 36 record dictionaries during each iteration. I was also curious to ask how you have implemented it
+
+```
+def lstm_get_record_gen(self, record_transform=None, df=None):
+   pd.set_option('max_colwidth',10)
+
+   num_steps = 30
+   batch_size = 20
+   current_idx = 0
+   skip_step = 30
+   if df is None:
+       df = self.get_df()
+
+   data_size = df.shape[0]
+   df.sort_index(inplace=True)
+
+   while True:
+       for i in range(batch_size):
+           if current_idx + num_steps >= data_size:
+               # reset the index back to the start of the data set
+               current_idx = 0
+           #print(df[current_idx:current_idx + num_steps])
+           record_dict = df[current_idx:current_idx + num_steps].to_dict(orient='record')
+           record_dict = self.read_record(record_dict)
+           current_idx += skip_step
+       yield record_dict
+```
+
+Aside from this...
+
+I was also curious what projects you've been a part of at Sony(if you can disclose)? I saw your description as "Modular Lead Programmer for animation and presentation systems" and am curious if it's related to what you're doing now
+
+Thanks again and hope all is well
+Jason
