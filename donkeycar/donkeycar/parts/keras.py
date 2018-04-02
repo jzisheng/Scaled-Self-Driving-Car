@@ -97,6 +97,107 @@ class KerasLinear(KerasPilot):
         throttle = outputs[1]
         return steering[0][0], throttle[0][0]
 
+'''
+Classes below were added from Tawn Kramer's repository for RNN implementation
+'''
+class KerasBehavioral(KerasPilot):
+    '''
+    A Keras part that take an image and Behavior vector as input,
+    outputs steering and throttle
+    '''
+    def __init__(self, model=None, num_outputs=2, num_behavior_inputs=2 , *args, **kwargs):
+        super(KerasBehavioral, self).__init__(*args, **kwargs)
+        self.model = default_bhv(num_outputs = num_outputs, num_bvh_inputs = num_behavior_inputs)
+        self.compile()
+
+    def compile(self):
+        self.model.compile(optimizer=self.optimizer,
+                  loss='mse')
+        
+    def run(self, img_arr, state_array):        
+        img_arr = img_arr.reshape((1,) + img_arr.shape)
+        bhv_arr = np.array(state_array).reshape(1,len(state_array))
+        outputs = self.model.predict([img_arr, bhv_arr])
+        steering = outputs[0]
+        throttle = outputs[1]
+        return steering[0][0], throttle[0][0]
+    
+'''
+Nvidia's model implemented with LSTM RNN
+
+Sourced from Tawn Kramer
+'''
+class KerasRNN_LSTM(KerasPilot):
+    def __init__(self, image_w =160, image_h=120, image_d=3, seq_length=3, num_outputs=2, *args, **kwargs):
+        super(KerasRNN_LSTM, self).__init__(*args, **kwargs)
+        image_shape = (image_h, image_w, image_d)
+        self.model = rnn_lstm(seq_length=seq_length,
+            num_outputs=num_outputs,
+            image_shape=image_shape)
+        self.seq_length = seq_length
+        self.image_d = image_d
+        self.image_w = image_w
+        self.image_h = image_h
+        self.img_seq = []
+        self.optimizer = "rmsprop"
+        self.compile()
+
+    def compile(self):
+        self.model.compile(optimizer=self.optimizer,
+                  loss='mse')
+
+    def run(self, img_arr):
+        if img_arr.shape[2] == 3 and self.image_d == 1:
+            img_arr = dk.utils.rgb2gray(img_arr)
+
+        while len(self.img_seq) < self.seq_length:
+            self.img_seq.append(img_arr)
+
+        self.img_seq = self.img_seq[1:]
+        self.img_seq.append(img_arr)
+        
+        img_arr = np.array(self.img_seq).reshape(1, self.seq_length, self.image_h, self.image_w, self.image_d )
+        outputs = self.model.predict([img_arr])
+        steering = outputs[0][0]
+        throttle = outputs[0][1]
+        return steering, throttle
+
+def rnn_lstm(seq_length=3, num_outputs=2, image_shape=(120,160,3)):
+
+    from keras.layers import Input, Dense
+    from keras.models import Sequential
+    from keras.layers import Convolution2D, MaxPooling2D, Reshape, BatchNormalization, Merge
+    from keras.layers import Activation, Dropout, Flatten, Cropping2D, Lambda
+    from keras.layers.merge import concatenate
+    from keras.layers import LSTM
+    from keras.layers.wrappers import TimeDistributed as TD
+
+    img_seq_shape = (seq_length,) + image_shape   
+    img_in = Input(batch_shape = img_seq_shape, name='img_in')
+    
+    x = Sequential()
+    x.add(TD(Cropping2D(cropping=((60,0), (0,0))), input_shape=img_seq_shape )) #trim 60 pixels off top
+    x.add(TD(Convolution2D(24, (5,5), strides=(2,2), activation='relu')))
+    x.add(TD(Convolution2D(32, (5,5), strides=(2,2), activation='relu')))
+    x.add(TD(Convolution2D(32, (3,3), strides=(2,2), activation='relu')))
+    x.add(TD(Convolution2D(32, (3,3), strides=(1,1), activation='relu')))
+    x.add(TD(MaxPooling2D(pool_size=(2, 2))))
+    x.add(TD(Flatten(name='flattened')))
+    x.add(TD(Dense(100, activation='relu')))
+    x.add(TD(Dropout(.1)))
+      
+    x.add(LSTM(128, return_sequences=True, name="LSTM_seq"))
+    x.add(Dropout(.1))
+    x.add(LSTM(128, return_sequences=False, name="LSTM_out"))
+    x.add(Dropout(.1))
+    x.add(Dense(128, activation='relu'))
+    x.add(Dropout(.1))
+    x.add(Dense(64, activation='relu'))
+    x.add(Dense(10, activation='relu'))
+    x.add(Dense(num_outputs, activation='linear', name='model_outputs'))
+    
+    return x
+
 
 
 class KerasIMU(KerasPilot):
@@ -148,14 +249,12 @@ def lstm_default_categorical():
 
     img_in = Input(shape=(120, 160, 3), name='img_in')                    
     x = img_in
-    x = LSTM(hidden_size, return_sequences=True)
-    x = LSTM(hidden_size, return_sequences=True)
     x = Convolution2D(24, (5,5), strides=(2,2), activation='relu')(x)      
     x = Convolution2D(32, (5,5), strides=(2,2), activation='relu')(x)   
     x = Convolution2D(64, (5,5), strides=(2,2), activation='relu')(x)       # 64 features, 5px5p kernal window, 2wx2h stride, relu
     x = Convolution2D(64, (3,3), strides=(2,2), activation='relu')(x)       # 64 features, 3px3p kernal window, 2wx2h stride, relu
     x = Convolution2D(64, (3,3), strides=(1,1), activation='relu')(x)       # 64 features, 3px3p kernal window, 1wx1h stride, relu
-
+    x = LSTM(hidden_size, dropout=0.2, recurrent_dropout=0.2)(x)
     x = Flatten(name='flattened')(x)                                        # Flatten to 1D (Fully connected)
     x = Dense(100, activation='relu')(x)                                    # Classify the data into 100 features, make all negatives 0
     x = Dropout(.1)(x)                                                     

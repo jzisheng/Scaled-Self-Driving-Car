@@ -369,7 +369,6 @@ class Tub(object):
 
             data[key] = val
 
-
         return data
 
 
@@ -402,7 +401,7 @@ class Tub(object):
                     record_dict = record_transform(record_dict)
 
                 record_dict = self.read_record(record_dict)
-
+                #print(record_dict)
                 yield record_dict
 
 
@@ -476,10 +475,14 @@ class Tub(object):
                 record_dict = df[current_idx:current_idx + num_steps].to_dict(orient='record')[0]
                 record_dict = self.read_record(record_dict)
                 current_idx += skip_step
-            yield record_dict
+                
+                record_dict["user/angle"] = utils.linear_bin(record_dict["user/angle"])
+                #print("-----")
+                #print(record_dict)
+                yield record_dict
 
 
-    def lstm_get_batch_gen(self, keys, record_transform=None, batch_size=128, df=None):
+    def lstm_get_batch_gen(self, keys, batch_size=128,record_transform=None, df=None):
 
         record_gen = self.lstm_get_record_gen(record_transform, df=df)
 

@@ -3,9 +3,8 @@
 Scripts to drive a donkey 2 car and train a model for it. 
 
 Usage:
-    manage.py (drive) [--model=<model>] [--js]
-    manage.py (lstm_train) [--tub=<tub1,tub2,..tubn>]  (--model=<model>) [--no_cache]
-    manage.py (train) [--tub=<tub1,tub2,..tubn>]  (--model=<model>) [--no_cache]
+    manage.py (drive) [--model=<model>] [--js]  [--model_type=categorical|hres_cat|rnn]
+    manage.py (train) [--tub=<tub1,tub2,..tubn>]  (--model=<model>) [--model_type=categorical|hrescat|rnn] [--no_cache]
 
 Options:
     -h --help        Show this screen.
@@ -22,13 +21,13 @@ import donkeycar as dk
 #import parts
 from donkeycar.parts.camera import PiCamera
 from donkeycar.parts.transform import Lambda
-from donkeycar.parts.keras import KerasCategorical
+from donkeycar.parts.keras import KerasCategorical, KerasRNN_LSTM
 from donkeycar.parts.actuator import PCA9685, PWMSteering, PWMThrottle
 from donkeycar.parts.datastore import TubHandler, TubGroup
 from donkeycar.parts.controller import LocalWebController, JoystickController
 
 
-def drive(cfg, model_path=None, use_joystick=False):
+def drive(cfg, model_path=None, use_joystick=False,model_type='categorical'):
     '''
     Construct a working robotic vehicle from many parts.
     Each part runs as a job in the Vehicle loop, calling either
@@ -74,8 +73,17 @@ def drive(cfg, model_path=None, use_joystick=False):
     
     #Run the pilot if the mode is not user.
     kl = KerasCategorical()
+    
+    # Change model type accordingly
+    if(model_type == 'rnn'):
+        kl = KerasRNN_LSTM()
+    elif(model_type=='')    
+    
     if model_path:
+        #kl.load(model_path)
+        #kl = dk.utils.get_model_by_type(model_type, cfg)
         kl.load(model_path)
+        
     
     V.add(kl, inputs=['cam/image_array'], 
           outputs=['pilot/angle', 'pilot/throttle'],
@@ -131,7 +139,7 @@ def drive(cfg, model_path=None, use_joystick=False):
     print("You can now go to <your pi ip address>:8887 to drive your car.")
 
 
-def train(cfg, tub_names, model_name):
+def train(cfg, tub_names, model_name,model_type):
     '''
     use the specified data in tub_names to train an artifical neural network
     saves the output trained model as model_name
@@ -168,63 +176,31 @@ def train(cfg, tub_names, model_name):
              train_split=cfg.TRAIN_TEST_SPLIT)
 
 
-def lstm_train(cfg, tub_names, model_name):
-    '''
-    use the specified data in tub_names to train an artifical neural network
-    saves the output trained model as model_name
-    '''
-    print('lstm_training')
-    X_keys = ['cam/image_array']
-    y_keys = ['user/angle', 'user/throttle']
-
-    def rt(record):
-        record['user/angle'] = dk.utils.linear_bin(record['user/angle'])
-        return record
-
-    kl = KerasCategorical()
-    print('tub_names', tub_names)
-    if not tub_names:
-        tub_names = os.path.join(cfg.DATA_PATH, '*')
-    tubgroup = TubGroup(tub_names)
-    train_gen, val_gen = tubgroup.lstm_get_train_val_gen(X_keys, y_keys,
-                                                    record_transform=rt,
-                                                    batch_size=cfg.BATCH_SIZE,
-                                                    train_frac=cfg.TRAIN_TEST_SPLIT)
-
-    model_path = os.path.expanduser(model_name)
-
-    total_records = len(tubgroup.df)
-    total_train = int(total_records * cfg.TRAIN_TEST_SPLIT)
-    total_val = total_records - total_train
-    print('train: %d, validation: %d' % (total_train, total_val))
-    steps_per_epoch = total_train // cfg.BATCH_SIZE
-    print('steps_per_epoch', steps_per_epoch)
-
-    kl.train(train_gen,
-             val_gen,
-             saved_model_path=model_path,
-             steps=steps_per_epoch,
-             train_split=cfg.TRAIN_TEST_SPLIT)
-
-
-
-
-
 if __name__ == '__main__':
-    args = docopt(__doc__)
-    cfg = dk.load_config()
-    
     if args['drive']:
-        drive(cfg, model_path = args['--model'], use_joystick=args['--js'])
+        model_path = args['--model']
+        use_joystic=args['--js']
+        model_type = args['--model_type']
+        drive(cfg, model_path, use_joystick, model_type)
 
-    elif args['train']:
+    if args['train']:
+        from train import rnn_train
         tub = args['--tub']
         model = args['--model']
+        model_type = args['--model_type']
         cache = not args['--no_cache']
-        train(cfg, tub, model)
+        if model_type == 'rnn':
+            multi_train(cfg, tub, model, model_type)
+        elif model_type == 'hres_cat':
+            train(cfg,tub,model,model_type)
+        
+    elif args['lstm_drive']:
+        drive(cfg, model_path = args['--model'], use_joystick=args['--js'],model_type='rnn')
         
     elif args['lstm_train']:
+        from train import rnn_train
+        
         tub = args['--tub']
         model = args['--model']
         cache = not args['--no_cache']
-        lstm_train(cfg, tub, model)
+        rnn_train(cfg, tub, model)

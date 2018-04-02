@@ -89,7 +89,7 @@ def get_cnn1_model():
     model.add(keras.layers.Dropout(0.2))
     model.add(keras.layers.ELU())
     
-    model.add(keras.layers.Dense(1, activation='relu'))
+    model.add(keras.layers.Dense(1, activation='linear'))
     
     return model
 
@@ -154,5 +154,5 @@ def get_nvidia_model(num_outputs):
     model.add(ELU())
     model.add(Dense(num_outputs))
 
-    model.compile(optimizer=Adadelta(), loss="mse")
+    model.compile(optimizer="adam", loss="mse")
     return model

@@ -189,7 +189,41 @@ def map_range(x, X_min, X_max, Y_min, Y_max):
 
     return int(y)
 
+'''
+ADDL. BINNING
+Same functions as above, but implemented with
+100 steering angle bins for higher steering resolution
+'''
 
+
+def linear_bin_hres(a):
+    a = a + 1
+    b = round(a / (2/100))
+    arr = np.zeros(101)
+    arr[int(b)] = 1
+    return arr
+
+
+def linear_unbin_hres(arr):
+    b = np.argmax(arr)
+    a = b *(2/100) - 1
+    return a
+
+
+def bin_Y_hres(Y):
+    d = []
+    for y in Y:
+        arr = np.zeros(101)
+        arr[linear_bin(y)] = 1
+        d.append(arr)
+    return np.array(d) 
+        
+def unbin_Y_hres(Y):
+    d=[]
+    for y in Y:
+        v = linear_unbin(y)
+        d.append(v)
+    return np.array(d)
 
 '''
 NETWORKING
@@ -278,3 +312,95 @@ def expand_path_arg(path_str):
         expanded_paths += paths
     return expanded_paths
 
+
+'''
+Below utility functions were added for RNN LSTM networks
+
+Sourced from Tawn Kramer repository
+'''
+def expand_path_masks(paths):
+    '''
+    take a list of paths and expand any wildcards
+    returns a new list of paths fully expanded
+    '''
+    import glob
+    expanded_paths = []
+    for path in paths:
+        if '*' in path or '?' in path:
+            mask_paths = glob.glob(path)
+            expanded_paths += mask_paths
+        else:
+            expanded_paths.append(path)
+
+    return expanded_paths
+
+
+def gather_tub_paths(cfg, tub_names=None):
+    '''
+    takes as input the configuration, and the comma seperated list of tub paths
+    returns a list of Tub paths
+    '''
+    if tub_names:
+        tub_paths = [os.path.expanduser(n) for n in tub_names.split(',')]
+        return expand_path_masks(tub_paths)
+    else:
+        paths = [os.path.join(cfg.DATA_PATH, n) for n in os.listdir(cfg.DATA_PATH)]
+        dir_paths = []
+        for p in paths:
+            if os.path.isdir(p):
+                dir_paths.append(p)
+        return dir_paths
+
+
+def gather_tubs(cfg, tub_names):    
+    '''
+    takes as input the configuration, and the comma seperated list of tub paths
+    returns a list of Tub objects initialized to each path
+    '''
+    from donkeycar.parts.datastore import Tub
+    
+    tub_paths = gather_tub_paths(cfg, tub_names)
+    tubs = [Tub(p) for p in tub_paths]
+
+    return tubs
+
+def get_record_index(fnm):
+    sl = os.path.basename(fnm).split('_')
+    return int(sl[1].split('.')[0])
+
+def get_image_index(fnm):
+    sl = os.path.basename(fnm).split('_')
+    return int(sl[0])
+
+
+def load_scaled_image_arr(filename, cfg):
+    '''
+    load an image from the filename, and use the cfg to resize if needed
+    '''
+    import donkeycar as dk
+    img = Image.open(filename)
+    if img.height != cfg.IMAGE_H or img.width != cfg.IMAGE_W:
+        img = img.resize((cfg.IMAGE_H, cfg.IMAGE_W))
+    img_arr = np.array(img)
+    if img_arr.shape[2] == 3 and cfg.IMAGE_DEPTH == 1:
+        img_arr = dk.utils.rgb2gray(img_arr).reshape(cfg.IMAGE_H, cfg.IMAGE_W, 1)
+    return img_arr
+
+# Added for loading RNN model for RP3
+def get_model_by_type(model_type, cfg):
+    from donkeycar.parts.keras import KerasRNN_LSTM,rnn_lstm
+ 
+    if model_type is None:
+        model_type = "categorical"
+
+    input_shape = (cfg.IMAGE_H, cfg.IMAGE_W, cfg.IMAGE_DEPTH)
+
+    #kl = rnn_lstm(seq_length=cfg.SEQUENCE_LENGTH, num_outputs=2, input_shape=input_shape)
+    elif model_type == "rnn":
+        kl = rnn_lstm(seq_length=cfg.SEQUENCE_LENGTH, num_outputs=2)
+    elif model_type == "categorical":
+        kl = KerasCategorical(input_shape=input_shape)
+    else:
+        raise Exception("unknown model type: %s" % model_type)
+
+    return kl

@@ -89,7 +89,7 @@ def get_cnn1_model():
     model.add(keras.layers.Dropout(0.2))
     model.add(keras.layers.ELU())
     
-    model.add(keras.layers.Dense(1, activation='relu'))
+    model.add(keras.layers.Dense(1, activation='linear'))
     
     return model
 
@@ -130,11 +130,6 @@ def get_cnn1_model():
     return model
 
 def get_nvidia_model(num_outputs):
-    '''
-    this model is inspired by the NVIDIA paper
-    https://images.nvidia.com/content/tegra/automotive/images/2016/solutions/pdf/end-to-end-dl-using-px.pdf
-    Activation is ELU
-    '''
     
     model = Sequential()
 
