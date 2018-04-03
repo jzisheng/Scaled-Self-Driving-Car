@@ -156,7 +156,7 @@ def linear_bin(a):
     return arr
 
 
-def linear_unbin(arr):
+def linear_(arr):
     b = np.argmax(arr)
     a = b *(2/14) - 1
     return a
@@ -198,8 +198,8 @@ Same functions as above, but implemented with
 
 def linear_bin_hres(a):
     a = a + 1
-    b = round(a / (2/100))
-    arr = np.zeros(101)
+    b = round(a / (2/99))
+    arr = np.zeros(100)
     arr[int(b)] = 1
     return arr
 
@@ -213,7 +213,7 @@ def linear_unbin_hres(arr):
 def bin_Y_hres(Y):
     d = []
     for y in Y:
-        arr = np.zeros(101)
+        arr = np.zeros(100)
         arr[linear_bin(y)] = 1
         d.append(arr)
     return np.array(d) 
@@ -396,7 +396,7 @@ def get_model_by_type(model_type, cfg):
     input_shape = (cfg.IMAGE_H, cfg.IMAGE_W, cfg.IMAGE_DEPTH)
 
     #kl = rnn_lstm(seq_length=cfg.SEQUENCE_LENGTH, num_outputs=2, input_shape=input_shape)
-    elif model_type == "rnn":
+    if model_type == "rnn":
         kl = rnn_lstm(seq_length=cfg.SEQUENCE_LENGTH, num_outputs=2)
     elif model_type == "categorical":
         kl = KerasCategorical(input_shape=input_shape)

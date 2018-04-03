@@ -8,3 +8,8 @@ python manage.py train --tub /home/jason/sessions/data-3-17/tub_1_18-03-17 --mod
 
 
 python manage.py train --tub /home/jason/sessions/data-3-17/tub_1_18-03-17,/home/jason/sessions/data-3-17/tub_2_18-03-17,/home/jason/sessions/data-3-23/tub_3_18-03-17,/home/jason/sessions/data-3-23/tub_4_18-03-17,/home/jason/sessions/data-3-23/tub_5_18-03-24 --model=./models/mypilot
+
+
+python manage.py drive --model=./models/mypilot --model_type=hres_cat
+
+python manage.py train --tub /home/jason/sessions/data-3-17/tub_1_18-03-17 --model=./models/mypilot --model_type=hres_cat

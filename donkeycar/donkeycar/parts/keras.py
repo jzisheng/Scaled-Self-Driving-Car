@@ -61,6 +61,22 @@ class KerasPilot():
                         validation_steps=steps*(1.0 - train_split))
         return hist
 
+class KerasHresCategorical(KerasPilot):
+    def __init__(self, model=None, *args, **kwargs):
+        super(KerasHresCategorical, self).__init__(*args, **kwargs)
+        if model:
+            self.model = model
+        else:
+            self.model = hres_categorical()
+        
+    def run(self, img_arr):
+        img_arr = img_arr.reshape((1,) + img_arr.shape)
+        angle_binned, throttle = self.model.predict(img_arr)
+        #print('throttle', throttle)
+        #angle_certainty = max(angle_binned[0])
+        angle_unbinned = dk.utils.linear_unbin_hres(angle_binned)
+        return angle_unbinned, throttle[0][0]
+    
 
 class KerasCategorical(KerasPilot):
     def __init__(self, model=None, *args, **kwargs):
@@ -272,6 +288,36 @@ def lstm_default_categorical():
                   loss_weights={'angle_out': 0.9, 'throttle_out': .001})
 
     return model
+
+def hres_categorical():
+    from keras.layers import Input, Dense, merge
+    from keras.models import Model
+    from keras.layers import Convolution2D, MaxPooling2D, Reshape, BatchNormalization
+    from keras.layers import Activation, Dropout, Flatten, Dense
+    
+    img_in = Input(shape=(120, 160, 3), name='img_in')
+    x = img_in
+    x = Convolution2D(24, (5,5), strides=(2,2), activation='relu')(x)
+    x = Convolution2D(32, (5,5), strides=(2,2), activation='relu')(x) 
+    x = Convolution2D(64, (5,5), strides=(2,2), activation='relu')(x)   
+    x = Convolution2D(64, (3,3), strides=(2,2), activation='relu')(x)      
+    x = Convolution2D(64, (3,3), strides=(1,1), activation='relu')(x)    
+    x = Flatten(name='flattened')(x)                                        # Flatten to 1D (Fully connected)
+    x = Dense(200, activation='relu')(x) 
+    x = Dropout(.1)(x)  
+    x = Dense(150, activation='relu')(x) 
+    x = Dropout(.1)(x)                                              
+    angle_out = Dense(100, activation='softmax', name='angle_out')(x) 
+    throttle_out = Dense(1, activation='relu', name='throttle_out')(x)    
+    
+    model = Model(inputs=[img_in], outputs=[angle_out, throttle_out])
+    model.compile(optimizer='adam',
+                  loss={'angle_out': 'categorical_crossentropy', 
+                        'throttle_out': 'mean_absolute_error'},
+                  loss_weights={'angle_out': 0.9, 'throttle_out': .001})
+    print(model.summary())
+    return model
+
     
 def default_categorical():
     from keras.layers import Input, Dense, merge

@@ -21,7 +21,7 @@ import donkeycar as dk
 #import parts
 from donkeycar.parts.camera import PiCamera
 from donkeycar.parts.transform import Lambda
-from donkeycar.parts.keras import KerasCategorical, KerasRNN_LSTM
+from donkeycar.parts.keras import KerasCategorical, KerasRNN_LSTM, KerasHresCategorical
 from donkeycar.parts.actuator import PCA9685, PWMSteering, PWMThrottle
 from donkeycar.parts.datastore import TubHandler, TubGroup
 from donkeycar.parts.controller import LocalWebController, JoystickController
@@ -73,12 +73,11 @@ def drive(cfg, model_path=None, use_joystick=False,model_type='categorical'):
     
     #Run the pilot if the mode is not user.
     kl = KerasCategorical()
-    
+    if model_type == 'hres_cat':
+        kl = KerasHresCategorical()
     # Change model type accordingly
     if(model_type == 'rnn'):
         kl = KerasRNN_LSTM()
-    elif(model_type=='')    
-    
     if model_path:
         #kl.load(model_path)
         #kl = dk.utils.get_model_by_type(model_type, cfg)
@@ -146,12 +145,18 @@ def train(cfg, tub_names, model_name,model_type):
     '''
     X_keys = ['cam/image_array']
     y_keys = ['user/angle', 'user/throttle']
+    
+    binning = dk.utils.linear_bin
+    if model_type == "hres_cat":
+        binning = dk.utils.linear_bin_hres
 
     def rt(record):
-        record['user/angle'] = dk.utils.linear_bin(record['user/angle'])
+        record['user/angle'] = binning(record['user/angle'])
         return record
 
     kl = KerasCategorical()
+    if model_type=='hres_cat':
+        kl = KerasHresCategorical()
     print('tub_names', tub_names)
     if not tub_names:
         tub_names = os.path.join(cfg.DATA_PATH, '*')
@@ -168,15 +173,19 @@ def train(cfg, tub_names, model_name,model_type):
     print('train: %d, validation: %d' % (total_train, total_val))
     steps_per_epoch = total_train // cfg.BATCH_SIZE
     print('steps_per_epoch', steps_per_epoch)
-
-    kl.train(train_gen,
-             val_gen,
+    
+    print(val_gen)
+    kl.train(train_gen=train_gen,
+             val_gen=val_gen,
              saved_model_path=model_path,
              steps=steps_per_epoch,
              train_split=cfg.TRAIN_TEST_SPLIT)
 
 
 if __name__ == '__main__':
+    args = docopt(__doc__)
+    cfg = dk.load_config()
+    
     if args['drive']:
         model_path = args['--model']
         use_joystic=args['--js']
@@ -190,7 +199,7 @@ if __name__ == '__main__':
         model_type = args['--model_type']
         cache = not args['--no_cache']
         if model_type == 'rnn':
-            multi_train(cfg, tub, model, model_type)
+            rnn_train(cfg, tub, model, model_type)
         elif model_type == 'hres_cat':
             train(cfg,tub,model,model_type)
         
