@@ -3,8 +3,8 @@
 Scripts to drive a donkey 2 car and train a model for it. 
 
 Usage:
-    manage.py (drive) [--model=<model>] [--js]  [--model_type=categorical|hres_cat|rnn]
-    manage.py (train) [--tub=<tub1,tub2,..tubn>]  (--model=<model>) [--model_type=categorical|hrescat|rnn] [--no_cache]
+    manage.py (drive) [--model=<model>] [--model_type=<model_type>] [--js]
+    manage.py (train) [--tub=<tub1,tub2,..tubn>]  [--model=<model>] [--model_type=<model_type>]  [--no_cache]
 
 Options:
     -h --help        Show this screen.
@@ -13,6 +13,9 @@ Options:
 """
 import os, sys
 from docopt import docopt
+
+import matplotlib
+matplotlib.use('Agg')
 
 from os.path import dirname
 sys.path.append("/home/jason/sproj/donkeycar")
@@ -27,7 +30,7 @@ from donkeycar.parts.datastore import TubHandler, TubGroup
 from donkeycar.parts.controller import LocalWebController, JoystickController
 
 
-def drive(cfg, model_path=None, use_joystick=False,model_type='categorical'):
+def drive(cfg, model_path=None,model_type='categorical',  use_joystick=False):
     '''
     Construct a working robotic vehicle from many parts.
     Each part runs as a job in the Vehicle loop, calling either
@@ -143,6 +146,7 @@ def train(cfg, tub_names, model_name,model_type):
     use the specified data in tub_names to train an artifical neural network
     saves the output trained model as model_name
     '''
+
     X_keys = ['cam/image_array']
     y_keys = ['user/angle', 'user/throttle']
     
@@ -190,6 +194,7 @@ if __name__ == '__main__':
         model_path = args['--model']
         use_joystic=args['--js']
         model_type = args['--model_type']
+        print(model_type)
         drive(cfg, model_path, use_joystick, model_type)
 
     if args['train']:
@@ -199,11 +204,11 @@ if __name__ == '__main__':
         model_type = args['--model_type']
         cache = not args['--no_cache']
         if model_type == 'rnn':
-            rnn_train(cfg, tub, model, model_type)
+            rnn_train(cfg, tub, model)
         elif model_type == 'hres_cat':
             train(cfg,tub,model,model_type)
         
-    elif args['lstm_drive']:
+    '''elif args['lstm_drive']:
         drive(cfg, model_path = args['--model'], use_joystick=args['--js'],model_type='rnn')
         
     elif args['lstm_train']:
@@ -212,4 +217,4 @@ if __name__ == '__main__':
         tub = args['--tub']
         model = args['--model']
         cache = not args['--no_cache']
-        rnn_train(cfg, tub, model)
+        rnn_train(cfg, tub, model)'''

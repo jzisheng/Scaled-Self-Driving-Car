@@ -421,11 +421,11 @@ def train(cfg, tub_names, model_name, transfer_model, model_type, continuous, au
 
     if cfg.USE_EARLY_STOP:
         callbacks_list.append(early_stop)
-    
     history = kl.model.fit_generator(
                     train_gen, 
                     steps_per_epoch=steps_per_epoch, 
-                    epochs=epochs, 
+                    epochs=1, 
+                    #epochs=epochs, 
                     verbose=cfg.VEBOSE_TRAIN, 
                     validation_data=val_gen,
                     callbacks=callbacks_list, 
@@ -434,8 +434,17 @@ def train(cfg, tub_names, model_name, transfer_model, model_type, continuous, au
                     use_multiprocessing=use_multiprocessing)
 
     print("\n\n----------- Best Eval Loss :%f ---------" % save_best.best)
-
-    if cfg.SHOW_PLOT:
+    plt.plot(history.history['loss'])
+    plt.plot(history.history['val_loss'])
+    plt.title('model loss : %f' % save_best.best)
+    plt.ylabel('loss')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'test'], loc='upper left')
+    plt.savefig(model_path + '_loss_%f.png' % save_best.best)
+    plt.show()
+'''
+    if True:
+    #if cfg.SHOW_PLOT:
         try:
             if do_plot:
                 # summarize history for loss
@@ -450,7 +459,7 @@ def train(cfg, tub_names, model_name, transfer_model, model_type, continuous, au
             else:
                 print("not saving loss graph because matplotlib not set up.")
         except:
-            print("problems with loss graph")
+            print("problems with loss graph")'''
 
 
 def sequence_train(cfg, tub_names, model_name, transfer_model, model_type, continuous):
@@ -460,6 +469,7 @@ def sequence_train(cfg, tub_names, model_name, transfer_model, model_type, conti
     trains models which take sequence of images
     '''
     import sklearn
+    import matplotlib.pyplot as plt
     from sklearn.model_selection import train_test_split
     from sklearn.utils import shuffle
     from PIL import Image
@@ -602,13 +612,22 @@ def sequence_train(cfg, tub_names, model_name, transfer_model, model_type, conti
     print('train: %d, validation: %d' %(total_train, total_val))
     steps_per_epoch = total_train // cfg.BATCH_SIZE
     print('steps_per_epoch', steps_per_epoch)
+    
+    history,save_best = kl.train(train_gen, 
+                    val_gen, 
+                    saved_model_path=model_path,
+                    steps=steps_per_epoch,
+                    train_split=cfg.TRAIN_TEST_SPLIT,
+                    use_early_stop = cfg.USE_EARLY_STOP)
 
-    kl.train(train_gen, 
-        val_gen, 
-        saved_model_path=model_path,
-        steps=steps_per_epoch,
-        train_split=cfg.TRAIN_TEST_SPLIT,
-        use_early_stop = cfg.USE_EARLY_STOP)
+    plt.plot(history.history['loss'])
+    plt.plot(history.history['val_loss'])
+    plt.title('model loss : %f' % save_best.best)
+    plt.ylabel('loss')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'test'], loc='upper left')
+    plt.savefig(model_path + '_loss_%f.png' % save_best.best)
+    # plt.show()
 
 
 
