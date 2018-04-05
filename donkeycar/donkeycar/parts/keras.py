@@ -51,14 +51,13 @@ class KerasPilot():
         if use_early_stop:
             callbacks_list.append(early_stop)
 
-        hist = self.model.fit_generator(
-                                                train_gen, 
-                                                steps_per_epoch=steps, 
-                                                epochs=epochs, 
-                                                verbose=1, 
-                                                validation_data=val_gen,
-                                                callbacks=callbacks_list, 
-                                                validation_steps=steps*(1.0 - train_split))
+        hist = self.model.fit_generator(train_gen, 
+                                        steps_per_epoch=steps, 
+                                        epochs=epochs, 
+                                        verbose=1, 
+                                        validation_data=val_gen,
+                                        callbacks=callbacks_list, 
+                                        validation_steps=steps*(1.0 - train_split))
         return hist, save_best
 
 class KerasHresCategorical(KerasPilot):

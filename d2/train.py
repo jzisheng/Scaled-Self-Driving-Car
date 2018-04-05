@@ -626,7 +626,7 @@ def sequence_train(cfg, tub_names, model_name, transfer_model, model_type, conti
     plt.ylabel('loss')
     plt.xlabel('epoch')
     plt.legend(['train', 'test'], loc='upper left')
-    plt.savefig(model_path + '_loss_%f.png' % save_best.best)
+    plt.savefig(model_path + '_'+model_type+'_loss_%f.png' % save_best.best)
     # plt.show()
 
 

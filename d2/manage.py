@@ -16,7 +16,7 @@ from docopt import docopt
 
 import matplotlib
 matplotlib.use('Agg')
-
+import matplotlib.pyplot as plt
 from os.path import dirname
 sys.path.append("/home/jason/sproj/donkeycar")
 
@@ -24,7 +24,7 @@ import donkeycar as dk
 #import parts
 from donkeycar.parts.camera import PiCamera
 from donkeycar.parts.transform import Lambda
-from donkeycar.parts.keras import KerasCategorical, KerasRNN_LSTM, KerasHresCategorical
+from donkeycar.parts.keras import KerasCategorical, KerasRNN_LSTM, KerasHresCategorical, KerasLinear
 from donkeycar.parts.actuator import PCA9685, PWMSteering, PWMThrottle
 from donkeycar.parts.datastore import TubHandler, TubGroup
 from donkeycar.parts.controller import LocalWebController, JoystickController
@@ -159,15 +159,24 @@ def train(cfg, tub_names, model_name,model_type):
         return record
 
     kl = KerasCategorical()
+    if model_type == 'linear':
+        kl = KerasLinear();
     if model_type=='hres_cat':
         kl = KerasHresCategorical()
     print('tub_names', tub_names)
     if not tub_names:
         tub_names = os.path.join(cfg.DATA_PATH, '*')
     tubgroup = TubGroup(tub_names)
+
     train_gen, val_gen = tubgroup.get_train_val_gen(X_keys, y_keys, record_transform=rt,
                                                     batch_size=cfg.BATCH_SIZE,
                                                     train_frac=cfg.TRAIN_TEST_SPLIT)
+
+    if model_type == 'linear':
+        train_gen, val_gen = tubgroup.get_train_val_gen(X_keys, y_keys,
+                                                    batch_size=cfg.BATCH_SIZE,
+                                                    train_frac=cfg.TRAIN_TEST_SPLIT)
+
 
     model_path = os.path.expanduser(model_name)
 
@@ -179,11 +188,19 @@ def train(cfg, tub_names, model_name,model_type):
     print('steps_per_epoch', steps_per_epoch)
     
     print(val_gen)
-    kl.train(train_gen=train_gen,
-             val_gen=val_gen,
-             saved_model_path=model_path,
-             steps=steps_per_epoch,
-             train_split=cfg.TRAIN_TEST_SPLIT)
+    history,save_best = kl.train(train_gen=train_gen,
+                                 val_gen=val_gen,
+                                 saved_model_path=model_path,
+                                 steps=steps_per_epoch,
+                                 train_split=cfg.TRAIN_TEST_SPLIT)
+
+    plt.plot(history.history['loss'])
+    plt.plot(history.history['val_loss'])
+    plt.title('model loss : %f' % save_best.best)
+    plt.ylabel('loss')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'test'], loc='upper left')
+    plt.savefig(model_path + '_'+model_type+'_loss_%f.png' % save_best.best)
 
 
 if __name__ == '__main__':
@@ -203,18 +220,10 @@ if __name__ == '__main__':
         model = args['--model']
         model_type = args['--model_type']
         cache = not args['--no_cache']
+        if model_type == 'linear':
+            train(cfg,tub,model,model_type)
         if model_type == 'rnn':
             rnn_train(cfg, tub, model)
         elif model_type == 'hres_cat':
             train(cfg,tub,model,model_type)
         
-    '''elif args['lstm_drive']:
-        drive(cfg, model_path = args['--model'], use_joystick=args['--js'],model_type='rnn')
-        
-    elif args['lstm_train']:
-        from train import rnn_train
-        
-        tub = args['--tub']
-        model = args['--model']
-        cache = not args['--no_cache']
-        rnn_train(cfg, tub, model)'''
