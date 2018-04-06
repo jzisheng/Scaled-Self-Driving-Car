@@ -3,7 +3,7 @@
 Scripts to drive a donkey 2 car and train a model for it. 
 
 Usage:
-    manage.py (drive) [--model=<model>] [--model_type=<model_type>] [--js]
+    manage.py (drive) [--model=<model>] [--model_type=<model_type>] [--js=<js>]
     manage.py (train) [--tub=<tub1,tub2,..tubn>]  [--model=<model>] [--model_type=<model_type>]  [--no_cache]
 
 Options:
@@ -11,6 +11,9 @@ Options:
     --tub TUBPATHS   List of paths to tubs. Comma separated. Use quotes to use wildcards. ie "~/tubs/*"
     --js             Use physical joystick.
 """
+
+# python manage.py drive --model ~/d2/models/rnn_8track --model_type linear
+
 import os, sys
 from docopt import docopt
 
@@ -76,6 +79,8 @@ def drive(cfg, model_path=None,model_type='categorical',  use_joystick=False):
     
     #Run the pilot if the mode is not user.
     kl = KerasCategorical()
+    if model_type == 'linear':
+        kl = KerasLinear()
     if model_type == 'hres_cat':
         kl = KerasHresCategorical()
     # Change model type accordingly
@@ -209,7 +214,8 @@ if __name__ == '__main__':
     
     if args['drive']:
         model_path = args['--model']
-        use_joystic=args['--js']
+        # use_joystic=args['--js']
+        use_joystick=args['--js']
         model_type = args['--model_type']
         print(model_type)
         drive(cfg, model_path, use_joystick, model_type)

@@ -1,0 +1,7 @@
+Training sessions:
+4 laps aroudn the 8 track
+Speed limit to 0.50% output
+Tests done on a 2S Lipo
+
+=== 4/5/18 ===
+tub_8_18-04-04 linear track data
