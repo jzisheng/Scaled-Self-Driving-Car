@@ -177,6 +177,41 @@ class KerasRNN_LSTM(KerasPilot):
         throttle = outputs[0][1]
         return steering, throttle
 
+class KerasRNN_Categorical(KerasPilot):
+    def __init__(self, image_w =160, image_h=120, image_d=3, seq_length=3, num_outputs=2, *args, **kwargs):
+        super(KerasRNN_Categorical, self).__init__(*args, **kwargs)
+        image_shape = (image_h, image_w, image_d)
+        self.model = rnn_lstm_bin(seq_length=seq_length,
+            num_outputs=num_outputs,
+            image_shape=image_shape)
+        self.seq_length = seq_length
+        self.image_d = image_d
+        self.image_w = image_w
+        self.image_h = image_h
+        self.img_seq = []
+        self.optimizer = "rmsprop"
+        self.compile()
+
+    def compile(self):
+        self.model.compile(optimizer=self.optimizer,
+                  loss='mse')
+
+    def run(self, img_arr):
+        if img_arr.shape[2] == 3 and self.image_d == 1:
+            img_arr = dk.utils.rgb2gray(img_arr)
+
+        while len(self.img_seq) < self.seq_length:
+            self.img_seq.append(img_arr)
+
+        self.img_seq = self.img_seq[1:]
+        self.img_seq.append(img_arr)
+        
+        img_arr = np.array(self.img_seq).reshape(1, self.seq_length, self.image_h, self.image_w, self.image_d )
+        outputs = self.model.predict([img_arr])
+        steering = dk.utils.linear_unbin(outputs[0])
+        # throttle = outputs[0][1]
+        return steering, throttle
+
 def rnn_lstm(seq_length=3, num_outputs=2, image_shape=(120,160,3)):
 
     from keras.layers import Input, Dense
@@ -214,6 +249,7 @@ def rnn_lstm(seq_length=3, num_outputs=2, image_shape=(120,160,3)):
     return x
 
 
+
 def rnn_lstm_bin(seq_length=3, num_outputs=2, image_shape=(120,160,3)):
 
     from keras.layers import Input, Dense
@@ -245,12 +281,9 @@ def rnn_lstm_bin(seq_length=3, num_outputs=2, image_shape=(120,160,3)):
     x.add(Dense(128, activation='relu'))
     x.add(Dropout(.1))
     x.add(Dense(64, activation='relu'))
-    x.add(Dense(10, activation='relu'))
-    x.add(Dense(num_outputs, activation='linear', name='model_outputs'))
+    x.add(Dense(15, activation='softmax', name='model_outputs'))
     
     return x
-
-
 
 class KerasIMU(KerasPilot):
     '''

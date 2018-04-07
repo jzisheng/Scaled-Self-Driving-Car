@@ -35,7 +35,7 @@ sys.path.append("/home/jason/sproj/donkeycar")
 import donkeycar as dk
 from donkeycar.parts.datastore import Tub
 from donkeycar.parts.keras import KerasLinear, KerasIMU,\
-     KerasCategorical, KerasBehavioral, KerasRNN_LSTM
+     KerasCategorical, KerasBehavioral, KerasRNN_LSTM, KerasRNN_Categorical
 #from donkeycar.parts.augment import augment_image
 from donkeycar.utils import *
 
@@ -440,7 +440,7 @@ def train(cfg, tub_names, model_name, transfer_model, model_type, continuous, au
     plt.ylabel('loss')
     plt.xlabel('epoch')
     plt.legend(['train', 'test'], loc='upper left')
-    plt.savefig(model_path + '_loss_%f.png' % save_best.best)
+    plt.savefig(model_path + '_'+model_type+'_loss_%f.png' % save_best.best)
     plt.show()
 '''
     if True:
@@ -484,6 +484,11 @@ def sequence_train(cfg, tub_names, model_name, transfer_model, model_type, conti
             image_h=cfg.IMAGE_H,
             image_d=cfg.IMAGE_DEPTH,
             seq_length=cfg.SEQUENCE_LENGTH, num_outputs=2)
+    if model_type == "rnn_bin":
+        kl = KerasRNN_Categorical(image_w=cfg.IMAGE_W,
+            image_h=cfg.IMAGE_H,
+            image_d=cfg.IMAGE_DEPTH,
+            seq_length=cfg.SEQUENCE_LENGTH, num_outputs=15)
 
     elif model_type == "3d":
         kl = Keras3D_CNN(image_w=cfg.IMAGE_W,
@@ -524,8 +529,10 @@ def sequence_train(cfg, tub_names, model_name, transfer_model, model_type, conti
 
         angle = float(json_data['user/angle'])
         throttle = float(json_data["user/throttle"])
-
-        sample['target_output'] = np.array([angle, throttle])
+        if(model_type == "rnn_bin"):
+            sample['target_output'] = dk.utils.linear_bin(angle)
+        else:
+            sample['target_output'] = np.array([angle, throttle])
 
         sample['img_data'] = None
 
@@ -594,8 +601,11 @@ def sequence_train(cfg, tub_names, model_name, transfer_model, model_type, conti
 
                 X = [np.array(b_inputs_img).reshape(batch_size,\
                     cfg.SEQUENCE_LENGTH, cfg.IMAGE_H, cfg.IMAGE_W, cfg.IMAGE_DEPTH)]
+                if(model_type == 'rnn_bin'):
+                    y = np.array(b_labels).reshape(batch_size, 15)
+                else:
+                    y = np.array(b_labels).reshape(batch_size, 2)
 
-                y = np.array(b_labels).reshape(batch_size, 2)
 
                 yield X, y
 
@@ -642,12 +652,11 @@ def multi_train(cfg, tub, model, transfer, model_type, continuous, aug):
 
     train_fn(cfg, tub, model, transfer, model_type, continuous, aug)
     
-def rnn_train(cfg, tub, model):
+def rnn_train(cfg, tub, model,model_type):
     '''
     Choose RNN for training
     '''
     transfer=None
-    model_type ='rnn'
     continuous=False
     aug=None
 

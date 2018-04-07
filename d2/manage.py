@@ -3,7 +3,7 @@
 Scripts to drive a donkey 2 car and train a model for it. 
 
 Usage:
-    manage.py (drive) [--model=<model>] [--model_type=<model_type>] [--js=<js>]
+    manage.py (drive) [--model=<model>] [--model_type=<model_type>]
     manage.py (train) [--tub=<tub1,tub2,..tubn>]  [--model=<model>] [--model_type=<model_type>]  [--no_cache]
 
 Options:
@@ -13,6 +13,8 @@ Options:
 """
 
 # python manage.py drive --model ~/d2/models/rnn_8track --model_type linear
+# python manage.py train --tub /home/jason/sproj/datasets/8track/data/tub_2_18-04-03,/home/jason/sproj/datasets/8track/data/tub_3_18-04-03 --model=./models/linear_8track --model_type=rnn_bin
+
 
 import os, sys
 from docopt import docopt
@@ -132,8 +134,9 @@ def drive(cfg, model_path=None,model_type='categorical',  use_joystick=False):
     V.add(throttle, inputs=['throttle'])
     
     #add tub to save data
-    inputs=['cam/image_array', 'user/angle', 'user/throttle', 'user/mode']
-    types=['image_array', 'float', 'float',  'str']
+    inputs=['cam/image_array', 'user/angle', 'user/throttle', 'user/mode',
+                'pilot/angle', 'pilot/throttle']
+    types=['image_array', 'float', 'float',  'str','float', 'float']
     
     th = TubHandler(path=cfg.DATA_PATH)
     tub = th.new_tub_writer(inputs=inputs, types=types)
@@ -166,6 +169,8 @@ def train(cfg, tub_names, model_name,model_type):
     kl = KerasCategorical()
     if model_type == 'linear':
         kl = KerasLinear();
+    if model_type=='categorical':
+        kl = KerasCategorical()
     if model_type=='hres_cat':
         kl = KerasHresCategorical()
     print('tub_names', tub_names)
@@ -215,10 +220,12 @@ if __name__ == '__main__':
     if args['drive']:
         model_path = args['--model']
         # use_joystic=args['--js']
-        use_joystick=args['--js']
+        # use_joystick=args['--js']
         model_type = args['--model_type']
         print(model_type)
-        drive(cfg, model_path, use_joystick, model_type)
+        drive(cfg, model_path=model_path,model_type=model_type, use_joystick=False)
+        # drive(cfg, model_path=model_path,model_type=model_type, use_joystick=False):
+        # drive(cfg, model_path, use_joystick, model_type)
 
     if args['train']:
         from train import rnn_train
@@ -228,8 +235,9 @@ if __name__ == '__main__':
         cache = not args['--no_cache']
         if model_type == 'linear':
             train(cfg,tub,model,model_type)
-        if model_type == 'rnn':
-            rnn_train(cfg, tub, model)
-        elif model_type == 'hres_cat':
+        if model_type == 'rnn' or model_type == 'rnn_bin':
+            rnn_train(cfg, tub, model,model_type)
+        elif model_type == 'hres_cat' or 'categorical':
             train(cfg,tub,model,model_type)
-        
+        else:
+            print("Invalid model name: rnn_bin | rnn | hres_cat | categorical")
