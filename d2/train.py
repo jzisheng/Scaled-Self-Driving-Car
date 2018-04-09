@@ -476,10 +476,12 @@ def sequence_train(cfg, tub_names, model_name, transfer_model, model_type, conti
     import json
 
     assert(not continuous)
-
+    print(' ============================== '+model_type)
+    print(" ==========================---- "+str(model_type=='rnn'))
     print("sequence of images training")
 
     if model_type == "rnn":
+        print(" ========================== here")
         kl = KerasRNN_LSTM(image_w=cfg.IMAGE_W,
             image_h=cfg.IMAGE_H,
             image_d=cfg.IMAGE_DEPTH,
@@ -496,9 +498,7 @@ def sequence_train(cfg, tub_names, model_name, transfer_model, model_type, conti
             image_d=cfg.IMAGE_DEPTH,
             seq_length=cfg.SEQUENCE_LENGTH,
             num_outputs=2)
-    else:
-        raise Exception("unknown model type: %s" % model_type)
-
+        
     tubs = gather_tubs(cfg, tub_names)
 
     records = []
@@ -659,7 +659,6 @@ def rnn_train(cfg, tub, model,model_type):
     transfer=None
     continuous=False
     aug=None
-
     sequence_train(cfg, tub, model, transfer, model_type, continuous)
     
 if __name__ == "__main__":

@@ -12,8 +12,18 @@ Options:
     --js             Use physical joystick.
 """
 
-# python manage.py drive --model ~/d2/models/rnn_8track --model_type linear
-# python manage.py train --tub /home/jason/sproj/datasets/8track/data/tub_2_18-04-03,/home/jason/sproj/datasets/8track/data/tub_3_18-04-03 --model=./models/linear_8track --model_type=rnn_bin
+# python manage.py drive --model ~/d2/models/linear_8track --model_type linear
+
+# python manage.py drive --model ~/d2/models/rnn_8track --model_type rnn
+
+# python manage.py train --tub /home/jason/sproj/datasets/8track/data/tub_2_18-04-03,/home/jason/sproj/datasets/8track/data/tub_3_18-04-03 --model=./models/linear_ltrack --model_type=rnn_bin
+
+# python manage.py train --tub /home/jason/sproj/datasets/8track/data/tub_2_18-04-03,/home/jason/sproj/datasets/8track/data/tub_3_18-04-03 --model=./models/linear_ltrack --model_type=rnn_bin
+
+# python manage.py train --tub  --model_type categorical
+# tub_1_18-04-09  tub_2_18-04-09  tub_3_18-04-09
+
+#python manage.py train --tub /home/jason/sproj/datasets/8track/data/tub_2_18-04-03,/home/jason/sproj/datasets/8track/data/tub_3_18-04-03,/home/jason/sproj/datasets/ltrack/data-4-9/tub_2_18-04-09,/home/jason/sproj/datasets/ltrack/data-4-9/tub_3_18-04-09 --model=./models/rnn_ltrack/ --model_type=rnn
 
 
 import os, sys
