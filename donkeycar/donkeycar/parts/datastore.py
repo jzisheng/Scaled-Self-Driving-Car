@@ -102,7 +102,7 @@ class OriginalWriter:
                     if key == 'user/angle':
                         self.out['angle'] = val
                     elif key == 'user/throttle':
-                        self.out['trottle'] = val
+                        self.out['throttle'] = val
                     elif key == 'odo/speed':
                         self.out['extra']['speed'] = val
                 elif typ is 'str':
@@ -334,6 +334,7 @@ class Tub(object):
 
     def get_json_record(self, ix):
         path = self.get_json_record_path(ix)
+        #print(path)
         try:
             with open(path, 'r') as fp:
                 json_data = json.load(fp)
