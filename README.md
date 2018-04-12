@@ -43,6 +43,8 @@ Note that the configuration file included in this repository is set up for a a T
 ## Authors
 
 * **Zisheng Jason Chang** - *Implementation* - [jzisheng](https://github.com/jzisheng)
+
+## Credits
 * **Tawn Kramer** - *LSTM and Sequence Generators* - [tawnkramer](https://github.com/tawnkramer/donkey/tree/master/donkeycar)
 
 
