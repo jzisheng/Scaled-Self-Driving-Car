@@ -285,6 +285,8 @@ def rnn_lstm_bin(seq_length=3, num_outputs=2, image_shape=(120,160,3)):
     
     return x
 
+
+
 class KerasIMU(KerasPilot):
     '''
     A Keras part that take an image and IMU vector as input,
