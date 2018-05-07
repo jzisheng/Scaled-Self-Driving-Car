@@ -424,8 +424,8 @@ def train(cfg, tub_names, model_name, transfer_model, model_type, continuous, au
     history = kl.model.fit_generator(
                     train_gen, 
                     steps_per_epoch=steps_per_epoch, 
-                    epochs=1, 
-                    #epochs=epochs, 
+                    #epochs=1, 
+                    epochs=epochs, 
                     verbose=cfg.VEBOSE_TRAIN, 
                     validation_data=val_gen,
                     callbacks=callbacks_list, 
