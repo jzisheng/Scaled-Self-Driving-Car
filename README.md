@@ -2,11 +2,13 @@
 
 # Scaled Self Driving Car
 
-For my senior research project I explored the use of deep convolutional neural networks in autonomous cars. The goal of this project is to evaluate how well a recurrent neural network and categorical output perform when combined with NVIDIA’s platform. These models’ performances are then evaluated on a scaled self driving car and compared to a human driver. NVIDIA's model combined with a RNN is able to keep the car within 6.1 cm of a human driver's path. This senior project explores implementations of deep convolutional neural networks for autonomous vehicles. All implementations are modified versions of NVIDIA's published convolutional neural network \cite{nvidiaendtoend}. This project explores the following variations:
+This senior project explores implementations of deep convolutional neural networks for autonomous vehicles. In this project I describe the application of NVIDIA’s end to end learning model, and the adding recurrent LSTM layers to NVIDIA’s model. All implementations are modified versions of NVIDIA's published convolutional neural network. This project explores the following variations:
 * Categorical Output vs. Single Output
 * Recurrent Neural Network vs. Single State Convolutional Network.
 
-This research project examines the application and performance of artificial neural networks in autonomous vehicles. It focuses on building upon the foundation of fully autonomous vehicles: how the vehicle detects and navigates roads. In this project I describe the application of NVIDIA’s end to end learning model, and the expansion of recurrent LSTM layers on top of NVIDIA’s model. The performance of NVIDIA’s original model to the new model will be evaluated by using a scaled self driving car platform. This paper will describe the platform used to test these models, and the performance evaluated on this platform. The performance of the models will be assessed based on the car’s ability to generalize and estimate its own confidence.
+The models’ performances are then evaluated on a scaled self driving car and compared to a human driver. NVIDIA's model combined with a RNN is able to keep the car within 6.1 cm of a human driver's path. The performance of NVIDIA’s original model to the new models will be evaluated by using a scaled self driving car platform. 
+
+This research project examines the application and performance of artificial neural networks in autonomous vehicles. It focuses on building upon the foundation of fully autonomous vehicles: how the vehicle detects and navigates roads.  The performance of the models will be assessed based on the car’s ability to generalize and estimate its own confidence.
 
 
 ## Getting Started
