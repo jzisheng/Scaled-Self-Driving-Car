@@ -2,31 +2,24 @@
 
 # Scaled Self Driving Car
 
-For my senior research project I explored the use of deep convolutional neural networks in autonomous cars. The goal of this project is to evaluate how well a recurrent neural network and categorical output perform when combined with NVIDIA’s platform. These models’ performances are then evaluated on a scaled self driving car and compared to a human driver. NVIDIA's model combined with a RNN is able to keep the car within 6.1 cm of a human driver's path. This senior project explores implementations of deep convolutional neural networks for autonomous vehicles. All implementations are modified versions of NVIDIA's published convolutional neural network \cite{nvidiaendtoend}. This project explores the following variations:
-* Categorical Output vs. Single Output
-* Recurrent Neural Network vs. Single State Convolutional Network.
-
-This research project examines the application and performance of artificial neural networks in autonomous vehicles. It focuses on building upon the foundation of fully autonomous vehicles: how the vehicle detects and navigates roads. In this project I describe the application of NVIDIA’s end to end learning model, and the expansion of recurrent LSTM layers on top of NVIDIA’s model. The performance of NVIDIA’s original model to the new model will be evaluated by using a scaled self driving car platform. This paper will describe the platform used to test these models, and the performance evaluated on this platform. The performance of the models will be assessed based on the car’s ability to generalize and estimate its own confidence.
-
+For my senior research project I explored the use of deep convolutional neural networks in autonomous cars. In this project I describe the application of NVIDIA’s end to end learning model, and the expansion of recurrent LSTM layers on top of NVIDIA’s model. The performance of these models will be evaluated using a scaled self driving car platform.
 
 ## Getting Started
 
 The scaled self driving car platform is built on the Donkeycar open source platform. This platform combines a RC Car, Raspberry Pi, Python, and various Python packages(Tornado, Keras, Tensorflow, OpenCV) to create a scaled autonomous vehicle. This section details the components used to build the platform.
 
-Below are all the components of hte SSDC
+#### Scaled Self Driving Car Platform
 
-Traxxas Slash 4x4 The RC Car chosen for this project is a Traxxas Slash 4x4. The Traxxas Slash is a consumer grade remote control car modeled at 1/10th scale. At 1/10th scale there is substantial space for a Raspberry Pi, servo board, and battery to be mounted. 
+The RC Car chosen for this project is a Traxxas Slash 4x4. The Traxxas Slash is a consumer grade remote control car modeled at 1/10th scale. At 1/10th scale there is substantial space for a Raspberry Pi, servo board, and battery to be mounted.
 
-Platform and Camera Mount: The mounting platform is built using a piece of flat plywood and a 3D printed camera mount. The 3D Printed Camera mount is uploaded on this project's github repository page \cite{ssdc}
+The mounting platform is built using a piece of flat plywood and a 3D printed camera mount. The 3D Printed Camera mount is uploaded on this project's github repository page
 
-Keras:In this research projrol car through a pulse width modulation servo board. Two channels on the servo board are connected to the RC Car: channel one controls the speed of the motor, and channel two controls the steering.
+In this research project all neural networks are implemented using Keras. Keras is an open source neural network library written in Python. A tensorflow backend is used for building the networks. 
 
-Traxxas Slash 4x4 The RC Car chosen for this project is a Traxxas Slash 4x4. The Traxxas Slash is a consumer grade remote control car modeled at 1/10th scale. At 1/10th scale there is substantial space for a Raspberry Pi, servo board, and battery to be mounted. 
+## Evaluation
+To evaluate the models I used a 
 
-Platform and Camera Mount The mounting platform is built using a piece of flat plywood and a 3D printed camera mount. The 3D Printed Camera mount is uploaded on this project's github repository page \cite{ssdc}
-
-Keras In this research project all neural networks are implemented using Keras. Keras is an open source neural network library written in Python. A tensorflow backend is used for building the networks. The core data structure of Keras are models made up of a linear stack of layers. For example, to construct a simple Sequential model with 100 inputs and 10 categorical outputs:
-
+## Installation instructions
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
 
