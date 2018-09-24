@@ -9,7 +9,7 @@ For my senior research project I explored implementations of NVIDIA's deep convo
 * Categorical Output and Recurrent Neural Network(LSTM)
 * Categorical Output and Single State Convolutional Network
 
-The control for this project is the Single Output and Single State Convolutional Network, the model that most closely resembles NVIDIA's.
+The control for this project is the Single Output and Single State Convolutional Network, the model built based from NVIDIA's. From this project I determined a single output recurrent neural network is able to outperform NVIDIA's single state output network.
 
 
 ## Scaled Self Driving Car Platform
@@ -55,11 +55,13 @@ The table below shows the callable `model_type`s.
 
 #### Training
 
-For training models, I recommend cloning this repository to your local machine, and exporting datasets from the Raspberry Pi to your machine.
+For training models, I recommend cloning this repository to your local machine, and exporting datasets from the Raspberry Pi to your machine. Datasets from the car will be stored in a `tub` format. More on this in the `Datasets` section.
 
-```python ~/d2/manage.py train```
+```python manage.py (train) [--tub=<tub1,tub2,..tubn>]  [--model=<model_path>] [--model_type=<model_type>]  [--no_cache]```
 
-```manage.py (train) [--tub=<tub1,tub2,..tubn>]  [--model=<model>] [--model_type=<model_type>]  [--no_cache]```
+Below is a example call for training a `rnn`(Single Output and Recurrent Neural Network) model assuming the car's data has been exported into `./data/Tub_*` directory, and the final model saved in the directory `./models/rnn_8track1`
+
+```python manage.py train --tub=./data/* --model=./models/rnn_8track1 --model_type=rnn```
 
 
 ## Evaluation
