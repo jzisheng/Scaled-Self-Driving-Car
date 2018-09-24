@@ -2,7 +2,11 @@
 
 # Scaled Self Driving Car
 
+
 For my senior research project I explored the use of deep convolutional neural networks in autonomous cars. In this project I describe the application of NVIDIA’s end to end learning model, and the expansion of recurrent LSTM layers on top of NVIDIA’s model. The performance of these models will be evaluated using a scaled self driving car platform.
+
+* Categorical Output vs. Single Output
+* Recurrent Neural Network vs. Single State Convolutional Network.
 
 ## Getting Started
 
