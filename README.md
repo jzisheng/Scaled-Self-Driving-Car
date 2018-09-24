@@ -3,22 +3,26 @@
 # Scaled Self Driving Car
 
 
-For my senior research project I explored the use of deep convolutional neural networks in autonomous cars. In this project I describe the application of NVIDIA’s end to end learning model, and the expansion of recurrent LSTM layers on top of NVIDIA’s model. The performance of these models will be evaluated using a scaled self driving car platform.
+For my senior research project I explored implementations of NVIDIA's deep convolutional neural network model in autonomous cars. I evaluated the following configurations of NVIDIA's model:
+* Categorical Output and Recurrent Neural Network(LSTM)
+* Categorical Output and Single State Convolutional Network
+* Single Output and Recurrent Neural Network(LSTM)
+* Single Output and Single State Convolutional Network
 
-* Categorical Output vs. Single Output
-* Recurrent Neural Network vs. Single State Convolutional Network.
+ The performance of these models were evaluated using a scaled self driving car platform.
 
-## Getting Started
+## Scaled Self Driving Car Platform
 
 The scaled self driving car platform is built on the Donkeycar open source platform. This platform combines a RC Car, Raspberry Pi, Python, and various Python packages(Tornado, Keras, Tensorflow, OpenCV) to create a scaled autonomous vehicle. This section details the components used to build the platform.
-
-#### Scaled Self Driving Car Platform
 
 The RC Car chosen for this project is a Traxxas Slash 4x4. The Traxxas Slash is a consumer grade remote control car modeled at 1/10th scale. At 1/10th scale there is substantial space for a Raspberry Pi, servo board, and battery to be mounted.
 
 The mounting platform is built using a piece of flat plywood and a 3D printed camera mount. The 3D Printed Camera mount is uploaded on this project's github repository page
 
 In this research project all neural networks are implemented using Keras. Keras is an open source neural network library written in Python. A tensorflow backend is used for building the networks. 
+
+
+## Getting Started
 
 ## Evaluation
 To evaluate the models I used a 
