@@ -2,7 +2,7 @@
 
 # Scaled Self Driving Car
 
-This research project examines the application and performance of artificial neural networks in autonomous vehicles. It focuses on building upon the foundation of fully autonomous vehicles: how the vehicle detects and navigates roads. In this project I describe the application of NVIDIA’s end to end learning model, and the expansion of recurrent LSTM layers on top of NVIDIA’s model. The performance of NVIDIA’s original model to the new model will be evaluated by using a scaled self driving car platform. The full paper can be found [here](https://digitalcommons.bard.edu/senproj_s2018/402/).
+This research project examines the application and performance of artificial neural networks in autonomous vehicles. It focuses on building upon the foundation of fully autonomous vehicles: how the vehicle detects and navigates roads. In this project I described the application of NVIDIA’s end to end learning model, and the expansion of recurrent LSTM layers on top of NVIDIA’s model. The performance of NVIDIA’s original model to the new model will be evaluated by using a scaled self driving car platform. The full paper can be found [here](https://digitalcommons.bard.edu/senproj_s2018/402/).
 
 ## Getting Started
 
