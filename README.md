@@ -25,9 +25,7 @@ In this research project all neural networks are implemented using Keras. Keras 
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
-
-This project is a fork of the original donkeycar, with modifications. As of right now the project is still under development
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. This project is a fork of the original donkeycar, with modifications. 
 
 #### Installing
 
