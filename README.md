@@ -1,5 +1,9 @@
 ![Alt Text](https://raw.githubusercontent.com/jzisheng/Scaled-Self-Driving-Car/master/car_driving.gif)
 
+https://vimeo.com/292911659 
+https://vimeo.com/292911732 
+
+
 # Scaled Self Driving Car
 
 This research project examines the application and performance of artificial neural networks in autonomous vehicles. In this project I described the application of NVIDIA’s end to end learning model, and the expansion of recurrent LSTM layers on top of NVIDIA’s model. I evaluated the following configurations of NVIDIA's model:
