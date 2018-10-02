@@ -1,6 +1,9 @@
 ![Alt Text](https://raw.githubusercontent.com/jzisheng/Scaled-Self-Driving-Car/master/car_driving.gif)
 
+Videos of it in action:
+
 https://vimeo.com/292911659 
+
 https://vimeo.com/292911732 
 
 
